@@ -400,15 +400,17 @@ $('#wm-mode').onchange = () => {
 
 $('#wm-logo').onchange = () => {
   wmLogo = $('#wm-logo').files[0] || null;
-  $('#wm-logo-name').textContent = wmLogo ? wmLogo.name : 'built-in spiral';
+  $('#wm-logo-name').textContent = wmLogo ? wmLogo.name : '';
   $('#wm-logo-reset').hidden = !wmLogo;
+  $('#wm-text').disabled = !!wmLogo;
 };
 
 $('#wm-logo-reset').onclick = () => {
   wmLogo = null;
   $('#wm-logo').value = '';
-  $('#wm-logo-name').textContent = 'built-in spiral';
+  $('#wm-logo-name').textContent = '';
   $('#wm-logo-reset').hidden = true;
+  $('#wm-text').disabled = false;
 };
 
 setupDrop($('#wm-drop'), $('#wm-input'), (files) => {
@@ -442,6 +444,7 @@ $('#wm-go').onclick = async () => {
       const body = new FormData();
       body.append('file', item.file);
       if (wmLogo) body.append('logo', wmLogo);
+      else body.append('text', $('#wm-text').value);
       body.append('bounce', String($('#wm-mode').value === 'bounce'));
       body.append('corner', $('#wm-corner').value);
       body.append('interval', $('#wm-interval').value);

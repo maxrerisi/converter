@@ -23,13 +23,30 @@ function options(raw = {}) {
   };
 }
 
-// The bundled SVG mark, rasterized once per run.
-async function defaultLogo(cacheDir) {
-  const png = path.join(cacheDir, 'sora-mark.png');
-  if (!fs.existsSync(png)) {
-    fs.mkdirSync(cacheDir, { recursive: true });
-    await exec('magick', ['-background', 'none', path.join(__dirname, 'public', 'sora-mark.svg'), '-resize', '1024x1024', png]);
-  }
+// ImageMagick needs a font file path here (font *names* need fontconfig, which macOS lacks).
+const FONTS = [
+  '/System/Library/Fonts/HelveticaNeue.ttc',
+  '/System/Library/Fonts/Avenir Next.ttc',
+  '/System/Library/Fonts/Helvetica.ttc',
+  '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+  '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+  '/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf',
+];
+
+// The default mark: the word "sora" in white with a soft drop shadow, rendered once per run.
+async function defaultLogo(cacheDir, raw = 'sora') {
+  const text = (String(raw || '').trim() || 'sora').slice(0, 24);
+  const png = path.join(cacheDir, `wordmark-${text.replace(/[^a-z0-9]/gi, '_')}.png`);
+  if (fs.existsSync(png)) return png;
+  const font = FONTS.find((f) => fs.existsSync(f));
+  if (!font) throw new Error('No usable font found for the built-in mark — upload your own mark image instead');
+  fs.mkdirSync(cacheDir, { recursive: true });
+  await exec('magick', [
+    '-background', 'none', '-fill', 'white', '-font', font, '-pointsize', '400', '-kerning', '-14',
+    `label:${text}`, '-trim', '+repage',
+    '(', '+clone', '-background', 'black', '-shadow', '70x14+0+8', ')', '+swap',
+    '-background', 'none', '-layers', 'merge', '+repage', png,
+  ]);
   return png;
 }
 

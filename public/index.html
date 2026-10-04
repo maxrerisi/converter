@@ -91,11 +91,12 @@
         <label>Opacity <input id="wm-opacity" type="number" min="5" max="100" step="5" value="85">%</label>
       </div>
       <div class="bar">
-        <label class="logo-pick">Mark
+        <label>Word <input id="wm-text" type="text" maxlength="24" value="sora"></label>
+        <label class="logo-pick">or image
           <input type="file" id="wm-logo" accept="image/png,image/svg+xml,image/webp">
-          <span id="wm-logo-name">built-in spiral</span>
+          <span id="wm-logo-name"></span>
         </label>
-        <button id="wm-logo-reset" class="ghost" hidden>Reset</button>
+        <button id="wm-logo-reset" class="ghost" hidden>Use the word instead</button>
         <span class="spacer"></span>
         <button id="wm-clear" class="ghost">Clear</button>
         <button id="wm-go" class="primary">Apply watermark</button>

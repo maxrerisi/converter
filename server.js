@@ -111,7 +111,7 @@ app.post('/watermark', newJob, upload.fields([{ name: 'file', maxCount: 1 }, { n
     if (!file) throw new Error('No file uploaded');
     const ext = extOf(file.originalname);
     if (![...IMAGE_EXTS, ...VIDEO_EXTS].includes(ext)) throw new Error(`Can't watermark .${ext} — images and videos only`);
-    const logo = req.files?.logo?.[0]?.path || await defaultLogo(path.join(WORK, 'cache'));
+    const logo = req.files?.logo?.[0]?.path || await defaultLogo(path.join(WORK, 'cache'), req.body.text);
     const out = await applyWatermark(file.path, path.join(req.jobDir, 'out'), ext, req.body, logo);
     finish(req, res, out, `${baseOf(file.originalname)}-watermarked`);
   } catch (err) {
