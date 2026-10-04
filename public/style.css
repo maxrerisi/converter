@@ -53,6 +53,13 @@ button:disabled { opacity: .5; cursor: default; }
 .page .tools button { padding: 2px 6px; font-size: 12px; }
 .loading { color: var(--muted); padding: 8px 0; }
 a { color: var(--accent); }
+.bar label { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.bar input[type=number] { width: 68px; font: inherit; padding: 5px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+.bar input[type=file] { max-width: 180px; font-size: 12px; }
+.preview { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.preview figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.preview img, .preview video { width: 100%; border-radius: 4px; display: block; background: #000; }
+.preview figcaption { font-size: 12px; color: var(--muted); margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 640px) {
   header { flex-direction: column; align-items: flex-start; gap: 8px; }
   main { padding: 16px; }
@@ -60,3 +67,4 @@ a { color: var(--accent); }
   .files .size { display: none; }
   .files .status { grid-column: 1 / -1; }
 }
+[hidden] { display: none !important; }

@@ -12,6 +12,7 @@
     <nav>
       <button class="tab active" data-tab="convert">Convert files</button>
       <button class="tab" data-tab="merge">Merge &amp; arrange PDF</button>
+      <button class="tab" data-tab="watermark">Sora watermark</button>
     </nav>
   </header>
 
@@ -62,6 +63,49 @@
 
       <div id="pages" class="pages"></div>
     </section>
+    <section id="watermark" class="panel">
+      <label class="drop small" id="wm-drop">
+        <input type="file" multiple hidden id="wm-input" accept="image/*,video/*">
+        <strong>Drop images or videos</strong> — a Sora-style mark is burned in, same format out.
+      </label>
+
+      <div class="bar">
+        <label>Placement
+          <select id="wm-mode">
+            <option value="bounce">Bounce between corners</option>
+            <option value="fixed">Fixed corner</option>
+          </select>
+        </label>
+        <label id="wm-interval-wrap">every
+          <input id="wm-interval" type="number" min="0.2" max="30" step="0.1" value="1.5"> s
+        </label>
+        <label id="wm-corner-wrap" hidden>
+          <select id="wm-corner">
+            <option value="br">Bottom right</option>
+            <option value="bl">Bottom left</option>
+            <option value="tr">Top right</option>
+            <option value="tl">Top left</option>
+          </select>
+        </label>
+        <label>Size <input id="wm-scale" type="number" min="1" max="50" step="1" value="10">%</label>
+        <label>Opacity <input id="wm-opacity" type="number" min="5" max="100" step="5" value="85">%</label>
+      </div>
+      <div class="bar">
+        <label class="logo-pick">Mark
+          <input type="file" id="wm-logo" accept="image/png,image/svg+xml,image/webp">
+          <span id="wm-logo-name">built-in spiral</span>
+        </label>
+        <button id="wm-logo-reset" class="ghost" hidden>Reset</button>
+        <span class="spacer"></span>
+        <button id="wm-clear" class="ghost">Clear</button>
+        <button id="wm-go" class="primary">Apply watermark</button>
+      </div>
+      <p class="hint">Images get the mark in one corner; videos cycle corners on the interval. This is a look-alike overlay, not real provenance metadata — labelling real footage as AI-generated can mislead people.</p>
+
+      <ul id="wm-list" class="files"></ul>
+      <div id="wm-preview" class="preview"></div>
+    </section>
+
   </main>
 
   <script src="/vendor/pdf-lib/pdf-lib.min.js"></script>

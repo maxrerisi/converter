@@ -5,6 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { categories, findCategory, combineToPdf, toolAvailable, exec } = require('./converters');
+const { applyWatermark, defaultLogo, IMAGE_EXTS, VIDEO_EXTS } = require('./watermark');
 
 const PORT = process.env.PORT || 3000;
 const WORK = path.join(os.tmpdir(), 'converter');
@@ -99,6 +100,20 @@ app.post('/combine', newJob, upload.array('files'), async (req, res) => {
     if (!req.files?.length) throw new Error('No files uploaded');
     const out = await combineToPdf(req.files.map((f) => f.path), path.join(req.jobDir, 'out'));
     finish(req, res, out, `${baseOf(req.files[0].originalname)}-combined`);
+  } catch (err) {
+    fail(req, res, err);
+  }
+});
+
+app.post('/watermark', newJob, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'logo', maxCount: 1 }]), async (req, res) => {
+  try {
+    const file = req.files?.file?.[0];
+    if (!file) throw new Error('No file uploaded');
+    const ext = extOf(file.originalname);
+    if (![...IMAGE_EXTS, ...VIDEO_EXTS].includes(ext)) throw new Error(`Can't watermark .${ext} — images and videos only`);
+    const logo = req.files?.logo?.[0]?.path || await defaultLogo(path.join(WORK, 'cache'));
+    const out = await applyWatermark(file.path, path.join(req.jobDir, 'out'), ext, req.body, logo);
+    finish(req, res, out, `${baseOf(file.originalname)}-watermarked`);
   } catch (err) {
     fail(req, res, err);
   }

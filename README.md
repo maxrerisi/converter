@@ -13,6 +13,7 @@ A lightweight local web app for converting almost any file, plus a PDF merge/arr
   - **Text/markup** (md, html, epub, rst, org, tex, ipynb…) → pdf, docx, odt, html, md, txt, epub
   - "Combine images into one PDF" when several images are queued
   - Download files individually, all at once, or as a .zip
+- **Sora watermark**: drop images or videos and burn in a Sora-style spiral mark. Images get it in a corner of your choice; videos cycle corners on an interval (1.5s by default), the way Sora's watermark hops around. Size, opacity and the mark itself (drop in your own PNG/SVG) are adjustable, and the output keeps the original format. This is a look-alike overlay, not real provenance metadata — adding it to real footage can mislead people about where that footage came from.
 - **Merge & arrange PDF**: drop PDFs, images or documents and every page shows up as a thumbnail. Drag to reorder, rotate, delete, then download the merged PDF or only the selected pages. Merging happens in the browser.
 
 If a converter isn't installed, its formats are marked unavailable instead of failing. Check `http://localhost:3000/health` to see what was found.
@@ -83,4 +84,4 @@ Reload your shell with `source ~/.zshrc`, then run `converter` (or `PORT=4000 co
 
 ## Adding formats
 
-All format routing lives in [`converters.js`](converters.js). Each category lists its input extensions, its output targets and a `run()` function that calls a command-line tool. The frontend picks up changes automatically through `/formats`.
+All format routing lives in [`converters.js`](converters.js); the watermark overlay lives in [`watermark.js`](watermark.js). Each category lists its input extensions, its output targets and a `run()` function that calls a command-line tool. The frontend picks up changes automatically through `/formats`.
