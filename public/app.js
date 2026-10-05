@@ -386,3 +386,90 @@ async function buildPdf(list, name) {
     renderPages();
   }
 }
+
+/* ---------------- Sora-style watermark ---------------- */
+
+const wmItems = []; // { file, li, files }
+let wmLogo = null;
+
+$('#wm-mode').onchange = () => {
+  const bounce = $('#wm-mode').value === 'bounce';
+  $('#wm-interval-wrap').hidden = !bounce;
+  $('#wm-corner-wrap').hidden = bounce;
+};
+
+$('#wm-logo').onchange = () => {
+  wmLogo = $('#wm-logo').files[0] || null;
+  $('#wm-logo-name').textContent = wmLogo ? wmLogo.name : '';
+  $('#wm-logo-reset').hidden = !wmLogo;
+  $('#wm-text').disabled = !!wmLogo;
+};
+
+$('#wm-logo-reset').onclick = () => {
+  wmLogo = null;
+  $('#wm-logo').value = '';
+  $('#wm-logo-name').textContent = '';
+  $('#wm-logo-reset').hidden = true;
+  $('#wm-text').disabled = false;
+};
+
+setupDrop($('#wm-drop'), $('#wm-input'), (files) => {
+  for (const file of files) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="name"></span><span class="size">${fmtSize(file.size)}</span><span></span><span class="status"></span><button class="x" title="Remove">✕</button>`;
+    li.querySelector('.name').textContent = file.name;
+    const item = { file, li };
+    li.querySelector('.x').onclick = () => {
+      wmItems.splice(wmItems.indexOf(item), 1);
+      li.remove();
+    };
+    wmItems.push(item);
+    $('#wm-list').append(li);
+  }
+});
+
+$('#wm-clear').onclick = () => {
+  wmItems.length = 0;
+  $('#wm-list').innerHTML = '';
+  $('#wm-preview').innerHTML = '';
+};
+
+$('#wm-go').onclick = async () => {
+  const btn = $('#wm-go');
+  btn.disabled = true;
+  $('#wm-preview').innerHTML = '';
+  for (const item of wmItems) {
+    setStatus(item, 'Working…');
+    try {
+      const body = new FormData();
+      body.append('file', item.file);
+      if (wmLogo) body.append('logo', wmLogo);
+      else body.append('text', $('#wm-text').value);
+      body.append('bounce', String($('#wm-mode').value === 'bounce'));
+      body.append('corner', $('#wm-corner').value);
+      body.append('interval', $('#wm-interval').value);
+      body.append('scale', String(+$('#wm-scale').value / 100));
+      body.append('opacity', String(+$('#wm-opacity').value / 100));
+      const res = await fetch('/watermark', { method: 'POST', body });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      item.files = json.files;
+      setStatus(item, resultLinks(json.files), 'ok');
+      showPreview(json.files[0], item.file.type);
+    } catch (err) {
+      setStatus(item, '', 'err');
+      item.li.querySelector('.status').textContent = err.message;
+    }
+  }
+  btn.disabled = false;
+};
+
+function showPreview(file, mime) {
+  const fig = document.createElement('figure');
+  const media = mime.startsWith('video') || /\.(mp4|mov|webm|mkv|m4v)$/i.test(file.name)
+    ? `<video src="/download/${file.id}" controls autoplay muted loop playsinline></video>`
+    : `<img src="/download/${file.id}" alt="">`;
+  fig.innerHTML = `${media}<figcaption></figcaption>`;
+  fig.querySelector('figcaption').textContent = file.name;
+  $('#wm-preview').append(fig);
+}
